@@ -50,3 +50,16 @@ test('an agent appears at its desk, then shows done', async ($, on) => {
   await desk.unmount()
   await term.unmount()
 })
+
+test('an agent named for a desk sits there, whatever its task says', async ($, on) => {
+  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('agent.spawn', () => ({ model: 'm', agentId: 'b1' }))
+
+  const desk = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  // "test" alone would send this to the Reviewer desk.
+  await $.agent.spawn({ ...SPAWN, tool_use_id: 't2', name: 'builder-1', description: 'Add unit tests', subagentType: 'general-purpose' } as never)
+  const alt = String((await desk.find({ type: 'Svg' }))?.props.alt)
+  expect(alt).toContain('Builder: working: Add unit tests')
+  expect(alt).toContain('Reviewer: empty')
+  await desk.unmount()
+})

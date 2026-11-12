@@ -11,8 +11,15 @@ const agents = atom({ plugin: 'agent-office', key: 'agents' } as const, [], {
   shape: 'agents-1',
 })
 
-/** Picks a desk from the agent's type and task words. */
-export function deskFor(kind: string, text: string): Desk {
+/**
+ * Picks a desk: an agent named for a desk (`builder`, `writer-2`,
+ * `Reviewer_A`, `helper`) sits there; otherwise its type and task words decide.
+ */
+export function deskFor(kind: string, text: string, name?: string): Desk {
+  const named = /^(builder|writer|reviewer|helper)/i.exec(name ?? '')?.[1]
+  if (named !== undefined) {
+    return (named[0].toUpperCase() + named.slice(1).toLowerCase()) as Desk
+  }
   const t = `${kind} ${text}`.toLowerCase()
   if (/review|check|verif|test|audit|lint|inspect/.test(t)) return 'Reviewer'
   if (/writ|doc|draft|readme|summar|report|explain|blog|copy/.test(t)) return 'Writer'
@@ -201,8 +208,9 @@ export const register: Register = on => {
     const callId = e.tool_use_id || `spawn-${Date.now()}`
     const one: OfficeAgent = {
       callId,
-      desk: deskFor(e.subagentType, e.description),
-      label: e.name ?? (e.description || e.subagentType),
+      desk: deskFor(e.subagentType, e.description, e.name),
+      // The task says more than a role name like "builder".
+      label: e.description || e.name || e.subagentType,
       kind: e.subagentType,
       isDone: false,
     }

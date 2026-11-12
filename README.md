@@ -28,7 +28,11 @@ In the desktop app, where `/plugin` does not run: click + next to the prompt box
 
 - Type `/agent-office` to open the panel. It also opens by itself when an agent starts, where the window is wide enough for a side panel.
 - A status line under the prompt shows how many agents are working and done.
-- Desks are picked from words in the agent's task:
+- **Pick a desk by name (most reliable):** ask Claude to name the agents `builder`, `writer`, `reviewer` and `helper`. A name that starts with a desk's role (`builder-2`, `Reviewer_A`) always sits at that desk. For example:
+
+  > Use four agents in parallel, named builder, writer, reviewer and helper: the builder implements the login form, the writer drafts its docs, the reviewer reviews the auth code, the helper researches how sessions are handled.
+
+- Otherwise, desks are picked from words in the agent's task, checked in this order:
   - review, test, check, verify → Reviewer
   - write, doc, draft, report → Writer
   - build, fix, implement, create → Builder
