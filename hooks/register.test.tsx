@@ -63,3 +63,11 @@ test('an agent named for a desk sits there, whatever its task says', async ($, o
   expect(alt).toContain('Reviewer: empty')
   await desk.unmount()
 })
+
+test('with no app attached, /agent-office says the panel will appear later', async ($, on) => {
+  on('ui.open', () => ({ value: { isPlaced: false, reason: 'no-surface: no surface is attached' } }))
+
+  const out = await $.command.run({ command: 'agent-office', args: '' } as never)
+  expect((out as { text: string }).text).toContain('waiting for the app to connect')
+  expect((out as { text: string }).text).toContain('appear by itself')
+})

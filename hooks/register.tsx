@@ -189,10 +189,13 @@ export const register: Register = on => {
 
   on('command.run', { command: 'agent-office' }, async $ => {
     const r = await $.ui.open({ id: PANE, title: TITLE })
+    if (r.isPlaced) return { text: 'Agent office opened in the side panel.' }
+    // The pane stays open and undrawn: the engine draws it once it can.
+    const later = r.reason.startsWith('no-surface')
+      ? 'is waiting for the app to connect to this session'
+      : 'is waiting for room on screen'
     return {
-      text: r.isPlaced
-        ? 'Agent office opened in the side panel.'
-        : `Agent office could not be shown: ${r.reason}`,
+      text: `Agent office ${later}. It will appear by itself; until then the status line under the prompt counts your agents. (Details: ${r.reason})`,
     }
   })
 
